@@ -1,9 +1,15 @@
 # The obstacle detector package for laser scanning signal.
 
 This repository is used for ROS node that tracks cylinder ocstacles in realtime. Forked from here:
+
 https://github.com/tysik/obstacle_detector.git
 
+The original algorithm is open sourced by Mateusz Przybyla, whose citation can be found here:
 
+https://github.com/tysik/obstacle_detector/blob/master/resources/ObstacleDetector.pdf
+
+
+# Now let me start his original README file:
 # The obstacle_detector package 
 
 The `obstacle_detector` package provides utilities to detect and track obstacles from data provided by 2D laser scanners. Detected obstacles come in a form of line segments or circles. The package was designed for a robot equipped with two laser scanners therefore it contains several additional utilities. The working principles of the method are described in an article provided in the `resources` folder.
