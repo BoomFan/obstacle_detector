@@ -39,6 +39,8 @@
 #include <std_srvs/Empty.h>
 #include <obstacle_detector/Obstacles.h>
 #include <obstacle_detector/Observation.h>
+#include <geometry_msgs/Pose.h>
+#include <geometry_msgs/PoseArray.h>
 
 namespace obstacle_detector
 {
@@ -65,6 +67,9 @@ private:
   ros::NodeHandle nh_local_;
 
   ros::Publisher obstacle_pub_;
+  ros::Publisher pose2d_pub_;        // Publish a customized format massage to Owen's code for pedestrian prediction.
+  ros::Publisher posearray_pub_;     // Publish an arrow that RVIZ reads.
+
   ros::ServiceServer params_srv_;
   ros::Timer timer_;
 
