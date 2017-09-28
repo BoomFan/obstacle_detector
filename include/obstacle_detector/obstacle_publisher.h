@@ -40,6 +40,7 @@
 #include <obstacle_detector/Obstacles.h>
 #include <obstacle_detector/Observation.h>
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Pose2D.h>
 #include <geometry_msgs/PoseArray.h>
 
 namespace obstacle_detector
@@ -74,6 +75,12 @@ private:
   ros::Timer timer_;
 
   obstacle_detector::Obstacles obstacles_;
+
+  obstacle_detector::Observation observs; //observs is a customized msg format
+  geometry_msgs::Pose2D state;            // state is a subset of Observation
+  geometry_msgs::PoseArray poseArray;     // poseArray is used for drawing arrows in Rviz
+  geometry_msgs::Pose somePose;           // Pose is a subset of PoseArray
+
   double t_;
 
   // Parameters

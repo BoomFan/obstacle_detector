@@ -124,6 +124,26 @@ bool ObstaclePublisher::updateParams(std_srvs::Empty::Request& req, std_srvs::Em
     circle.velocity.y = p_vy_vector_[idx];
 
     obstacles_.circles.push_back(circle);
+
+
+    // Here comes my own data format for pedestrian prediction
+    observs.poses.clear();
+    state.y = circle.center.y;
+    state.x = circle.center.x;
+    state.theta = atan2(circle.velocity.y, circle.velocity.x);
+    observs.poses.push_back(state);
+    observs.time = ros::Time::now().toSec();
+
+    somePose.position.y = circle.center.y;
+    somePose.position.z = 0.5;
+    somePose.position.x = circle.center.x;
+    double theta = state.theta;
+    somePose.orientation.x = 0;
+    somePose.orientation.y = 0;
+    somePose.orientation.z = sin(theta/2);
+    somePose.orientation.w = cos(theta/2);
+    poseArray.poses.push_back(somePose);
+
   }
 
   if (p_reset_)
@@ -228,6 +248,10 @@ void ObstaclePublisher::publishObstacles() {
 
   obstacles_msg->header.stamp = ros::Time::now();
   obstacle_pub_.publish(obstacles_msg);
+
+  pose2d_pub_.publish(observs);     // Publish a customized format massage to Owen's code.
+  posearray_pub_.publish(poseArray); // Publish an arrow that RVIZ reads.
+
 }
 
 void ObstaclePublisher::reset() {
