@@ -38,6 +38,7 @@
 #include <ros/ros.h>
 #include <std_srvs/Empty.h>
 #include <obstacle_detector/Obstacles.h>
+#include <obstacle_detector/Observation.h>
 
 namespace obstacle_detector
 {

@@ -94,10 +94,14 @@ bool ObstaclePublisher::updateParams(std_srvs::Empty::Request& req, std_srvs::Em
   if (p_active_ != prev_active) {
     if (p_active_) {
       obstacle_pub_ = nh_.advertise<obstacle_detector::Obstacles>("obstacles", 10);
+      pose2d_pub_ = nh.advertise<obstacle_detector::Observation>("/forecast/input", 1);        // Publish a customized format massage to Owen's code for pedestrian prediction.
+      posearray_pub_ = nh.advertise<geometry_msgs::PoseArray>("/mappose_estimate/poseary", 1); // Publish an arrow that RVIZ reads.
       timer_.start();
     }
     else {
       obstacle_pub_.shutdown();
+      pose2d_pub_.shutdown();
+      posearray_pub_.shutdown();
       timer_.stop();
     }
   }
