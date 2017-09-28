@@ -5,6 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Obstacles1
+        - /PoseArray1
       Splitter Ratio: 0.5
     Tree Height: 931
   - Class: rviz/Selection
@@ -395,6 +396,14 @@ Visualization Manager:
       Topic: /map
       Unreliable: false
       Value: true
+    - Arrow Length: 0.3
+      Class: rviz/PoseArray
+      Color: 255; 25; 0
+      Enabled: true
+      Name: PoseArray
+      Topic: /mappose_estimate/poseary
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -419,7 +428,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 11.0114
+      Distance: 11.9477
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -431,10 +440,10 @@ Visualization Manager:
         Z: 0
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.894797
+      Pitch: 0.694797
       Target Frame: map
       Value: Orbit (rviz)
-      Yaw: 3.15
+      Yaw: 3.015
     Saved:
       - Class: rviz/Orbit
         Distance: 13.3532

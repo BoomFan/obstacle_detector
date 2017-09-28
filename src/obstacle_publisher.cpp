@@ -250,6 +250,8 @@ void ObstaclePublisher::publishObstacles() {
   obstacle_pub_.publish(obstacles_msg);
 
   pose2d_pub_.publish(observs);     // Publish a customized format massage to Owen's code.
+  poseArray.header.stamp = ros::Time::now();
+  poseArray.header.frame_id = obstacles_.header.frame_id;
   posearray_pub_.publish(poseArray); // Publish an arrow that RVIZ reads.
 
 }
