@@ -45,6 +45,13 @@
 #include "obstacle_detector/utilities/tracked_obstacle.h"
 #include "obstacle_detector/utilities/math_utilities.h"
 
+// Added by ROAHMLab
+#include <obstacle_detector/Observation.h>
+#include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Pose2D.h>
+#include <geometry_msgs/PoseArray.h>
+
+
 namespace obstacle_detector
 {
 
@@ -83,11 +90,19 @@ private:
 
   ros::Subscriber obstacles_sub_;
   ros::Publisher obstacles_pub_;
+  ros::Publisher pose2d_pub_;        // Publish a customized format massage to Owen's code for pedestrian prediction.
+  ros::Publisher posearray_pub_;     // Publish an arrow that RVIZ reads.
+
   ros::ServiceServer params_srv_;
   ros::Timer timer_;
 
   double radius_margin_;
   obstacle_detector::Obstacles obstacles_;
+
+  obstacle_detector::Observation observs; //observs is a customized msg format
+  geometry_msgs::Pose2D state;            // state is a subset of Observation
+  geometry_msgs::PoseArray poseArray;     // poseArray is used for drawing arrows in Rviz
+  geometry_msgs::Pose somePose;           // Pose is a subset of PoseArray
 
   std::vector<TrackedObstacle> tracked_obstacles_;
   std::vector<CircleObstacle> untracked_obstacles_;

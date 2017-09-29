@@ -93,7 +93,7 @@ bool ObstaclePublisher::updateParams(std_srvs::Empty::Request& req, std_srvs::Em
 
   if (p_active_ != prev_active) {
     if (p_active_) {
-      obstacle_pub_ = nh_.advertise<obstacle_detector::Obstacles>("obstacles", 10);
+      obstacle_pub_ = nh_.advertise<obstacle_detector::Obstacles>("obstacles", 1);
       pose2d_pub_ = nh_.advertise<obstacle_detector::Observation>("/forecast/input", 1);        // Publish a customized format massage to Owen's code for pedestrian prediction.
       posearray_pub_ = nh_.advertise<geometry_msgs::PoseArray>("/mappose_estimate/poseary", 1); // Publish an arrow that RVIZ reads.
       timer_.start();
@@ -118,7 +118,7 @@ bool ObstaclePublisher::updateParams(std_srvs::Empty::Request& req, std_srvs::Em
     circle.center.x = p_x_vector_[idx];
     circle.center.y = p_y_vector_[idx];
     circle.radius = p_r_vector_[idx];
-    circle.true_radius = p_r_vector_[idx] - p_radius_margin_;;
+    circle.true_radius = p_r_vector_[idx] - p_radius_margin_;
 
     circle.velocity.x = p_vx_vector_[idx];
     circle.velocity.y = p_vy_vector_[idx];

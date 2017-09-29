@@ -38,6 +38,7 @@
 #include <ros/ros.h>
 #include <std_srvs/Empty.h>
 #include <obstacle_detector/Obstacles.h>
+// Added by ROAHMLab
 #include <obstacle_detector/Observation.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Pose2D.h>

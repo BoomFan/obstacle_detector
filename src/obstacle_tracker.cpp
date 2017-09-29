@@ -93,6 +93,10 @@ bool ObstacleTracker::updateParams(std_srvs::Empty::Request &req, std_srvs::Empt
     if (p_active_) {
       obstacles_sub_ = nh_.subscribe("raw_obstacles", 10, &ObstacleTracker::obstaclesCallback, this);
       obstacles_pub_ = nh_.advertise<obstacle_detector::Obstacles>("tracked_obstacles", 10);
+
+      pose2d_pub_ = nh_.advertise<obstacle_detector::Observation>("/forecast/input", 1);        // Publish a customized format massage to Owen's code for pedestrian prediction.
+      posearray_pub_ = nh_.advertise<geometry_msgs::PoseArray>("/mappose_estimate/poseary", 1); // Publish an arrow that RVIZ reads.
+
       timer_.start();
     }
     else {
@@ -104,6 +108,9 @@ bool ObstacleTracker::updateParams(std_srvs::Empty::Request &req, std_srvs::Empt
 
       obstacles_sub_.shutdown();
       obstacles_pub_.shutdown();
+
+      pose2d_pub_.shutdown();
+      posearray_pub_.shutdown();
 
       tracked_obstacles_.clear();
       untracked_obstacles_.clear();
@@ -466,17 +473,44 @@ void ObstacleTracker::publishObstacles() {
   obstacle_detector::ObstaclesPtr obstacles_msg(new obstacle_detector::Obstacles);
 
   obstacles_.circles.clear();
+  observs.poses.clear();
+  poseArray.poses.clear();
 
   for (auto& tracked_obstacle : tracked_obstacles_) {
     CircleObstacle ob = tracked_obstacle.getObstacle();
     ob.true_radius = ob.radius - radius_margin_;
     obstacles_.circles.push_back(ob);
+
+    // Here comes ROAHMLab data format for pedestrian prediction
+    if ((pow(ob.velocity.y, 2.0) + pow(ob.velocity.x, 2.0)) > 0.0){
+      state.y = ob.center.y;
+      state.x = ob.center.x;
+      state.theta = atan2(ob.velocity.y, ob.velocity.x);
+      observs.poses.push_back(state);
+      observs.time = ros::Time::now().toSec();
+
+      somePose.position.y = ob.center.y;
+      somePose.position.z = 0.5;
+      somePose.position.x = ob.center.x;
+      double theta = state.theta;
+      somePose.orientation.x = 0;
+      somePose.orientation.y = 0;
+      somePose.orientation.z = sin(theta/2);
+      somePose.orientation.w = cos(theta/2);
+      poseArray.poses.push_back(somePose);
+    }
+    
   }
 
   *obstacles_msg = obstacles_;
   obstacles_msg->header.stamp = ros::Time::now();
 
   obstacles_pub_.publish(obstacles_msg);
+
+  pose2d_pub_.publish(observs);     // Publish a customized format massage to Owen's code.
+  poseArray.header.stamp = ros::Time::now();
+  poseArray.header.frame_id = obstacles_.header.frame_id;
+  posearray_pub_.publish(poseArray); // Publish an arrow that RVIZ reads.
 }
 
 // Ugly initialization of static members of tracked obstacles...
