@@ -50,7 +50,8 @@
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Pose2D.h>
 #include <geometry_msgs/PoseArray.h>
-
+#include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
 
 namespace obstacle_detector
 {
@@ -92,6 +93,7 @@ private:
   ros::Publisher obstacles_pub_;
   ros::Publisher pose2d_pub_;        // Publish a customized format massage to Owen's code for pedestrian prediction.
   ros::Publisher posearray_pub_;     // Publish an arrow that RVIZ reads.
+  ros::Publisher markerarray_pub_;   // Publish arrows in marker array(with magnitude) that RVIZ reads.
 
   ros::ServiceServer params_srv_;
   ros::Timer timer_;
@@ -99,10 +101,12 @@ private:
   double radius_margin_;
   obstacle_detector::Obstacles obstacles_;
 
-  obstacle_detector::Observation observs; //observs is a customized msg format
-  geometry_msgs::Pose2D state;            // state is a subset of Observation
-  geometry_msgs::PoseArray poseArray;     // poseArray is used for drawing arrows in Rviz
-  geometry_msgs::Pose somePose;           // Pose is a subset of PoseArray
+  obstacle_detector::Observation observs;         // observs is a customized msg format
+  geometry_msgs::Pose2D state;                    // state is a subset of Observation
+  geometry_msgs::PoseArray poseArray;             // poseArray is used for drawing arrows in Rviz
+  geometry_msgs::Pose somePose;                   // Pose is a subset of PoseArray
+  visualization_msgs::MarkerArray marker_arrey;   // marker_array can contain arrows with
+  visualization_msgs::Marker marker;
 
   std::vector<TrackedObstacle> tracked_obstacles_;
   std::vector<CircleObstacle> untracked_obstacles_;

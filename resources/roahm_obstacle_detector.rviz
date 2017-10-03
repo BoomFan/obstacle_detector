@@ -6,7 +6,7 @@ Panels:
       Expanded:
         - /Obstacles1
         - /PoseArray1
-        - /PointCloud22
+        - /MarkerArray1
       Splitter Ratio: 0.5
     Tree Height: 931
   - Class: rviz/Selection
@@ -175,7 +175,7 @@ Visualization Manager:
       Enabled: true
       Margin color: 0; 170; 0
       Name: Obstacles
-      Opacity: 1
+      Opacity: 0.5
       Segments color: 255; 255; 0
       Segments thickness: 0.1
       Topic: /obstacles
@@ -386,6 +386,14 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /cylinder_velocity
+      Name: MarkerArray
+      Namespaces:
+        my_namespace: true
+      Queue Size: 0
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -410,7 +418,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 8.93916
+      Distance: 9.84099
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -422,10 +430,10 @@ Visualization Manager:
         Z: 0
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.939796
+      Pitch: 0.819796
       Target Frame: map
       Value: Orbit (rviz)
-      Yaw: 2.93
+      Yaw: 3.71501
     Saved:
       - Class: rviz/Orbit
         Distance: 13.3532

@@ -96,6 +96,7 @@ bool ObstacleTracker::updateParams(std_srvs::Empty::Request &req, std_srvs::Empt
 
       pose2d_pub_ = nh_.advertise<obstacle_detector::Observation>("/forecast/input", 1);        // Publish a customized format massage to Owen's code for pedestrian prediction.
       posearray_pub_ = nh_.advertise<geometry_msgs::PoseArray>("/mappose_estimate/poseary", 1); // Publish an arrow that RVIZ reads.
+      markerarray_pub_ = nh_.advertise<visualization_msgs::MarkerArray>( "/cylinder_velocity", 0 );    // Publish arrows in marker array(with magnitude) that RVIZ reads.
 
       timer_.start();
     }
@@ -111,6 +112,7 @@ bool ObstacleTracker::updateParams(std_srvs::Empty::Request &req, std_srvs::Empt
 
       pose2d_pub_.shutdown();
       posearray_pub_.shutdown();
+      markerarray_pub_.shutdown();
 
       tracked_obstacles_.clear();
       untracked_obstacles_.clear();
@@ -475,14 +477,16 @@ void ObstacleTracker::publishObstacles() {
   obstacles_.circles.clear();
   observs.poses.clear();
   poseArray.poses.clear();
+  marker_arrey.markers.clear();
 
+  int cnt = 0;
   for (auto& tracked_obstacle : tracked_obstacles_) {
     CircleObstacle ob = tracked_obstacle.getObstacle();
     ob.true_radius = ob.radius - radius_margin_;
     obstacles_.circles.push_back(ob);
 
     // Here comes ROAHMLab data format for pedestrian prediction
-    if ((pow(ob.velocity.y, 2.0) + pow(ob.velocity.x, 2.0)) > 0.0){
+    if ((pow(ob.velocity.y, 2.0) + pow(ob.velocity.x, 2.0)) > 0.015){
       state.y = ob.center.y;
       state.x = ob.center.x;
       state.theta = atan2(ob.velocity.y, ob.velocity.x);
@@ -498,6 +502,30 @@ void ObstacleTracker::publishObstacles() {
       somePose.orientation.z = sin(theta/2);
       somePose.orientation.w = cos(theta/2);
       poseArray.poses.push_back(somePose);
+
+      marker.header.frame_id = "map";
+      marker.header.stamp = ros::Time();
+      marker.ns = "my_namespace";
+      marker.id = cnt;
+      cnt ++;
+      marker.type = visualization_msgs::Marker::ARROW;
+      marker.action = visualization_msgs::Marker::ADD;
+      marker.pose.position.x = ob.center.x;
+      marker.pose.position.y = ob.center.y;
+      marker.pose.position.z = 0.5;
+      marker.pose.orientation.x = 0.0;
+      marker.pose.orientation.y = 0.0;
+      marker.pose.orientation.z = sin(theta/2);
+      marker.pose.orientation.w = cos(theta/2);
+      marker.scale.x = sqrt(pow(ob.velocity.y, 2.0) + pow(ob.velocity.x, 2.0));
+      marker.scale.y = 0.1;
+      marker.scale.z = 0.1;
+      marker.color.a = 1.0; // Don't forget to set the alpha!
+      marker.color.r = 1.0;
+      marker.color.g = 0.0;
+      marker.color.b = 0.0;
+      marker_arrey.markers.push_back(marker);
+      
     }
     
   }
@@ -511,6 +539,7 @@ void ObstacleTracker::publishObstacles() {
   poseArray.header.stamp = ros::Time::now();
   poseArray.header.frame_id = obstacles_.header.frame_id;
   posearray_pub_.publish(poseArray); // Publish an arrow that RVIZ reads.
+  markerarray_pub_.publish(marker_arrey);
 }
 
 // Ugly initialization of static members of tracked obstacles...
