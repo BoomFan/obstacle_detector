@@ -95,7 +95,6 @@ bool ObstacleTracker::updateParams(std_srvs::Empty::Request &req, std_srvs::Empt
       obstacles_pub_ = nh_.advertise<obstacle_detector::Obstacles>("tracked_obstacles", 10);
 
       pose2d_pub_ = nh_.advertise<obstacle_detector::Observation>("/forecast/input", 1);        // Publish a customized format massage to Owen's code for pedestrian prediction.
-      posearray_pub_ = nh_.advertise<geometry_msgs::PoseArray>("/mappose_estimate/poseary", 1); // Publish an arrow that RVIZ reads.
       markerarray_pub_ = nh_.advertise<visualization_msgs::MarkerArray>( "/cylinder_velocity", 0 );    // Publish arrows in marker array(with magnitude) that RVIZ reads.
 
       timer_.start();
@@ -111,7 +110,6 @@ bool ObstacleTracker::updateParams(std_srvs::Empty::Request &req, std_srvs::Empt
       obstacles_pub_.shutdown();
 
       pose2d_pub_.shutdown();
-      posearray_pub_.shutdown();
       markerarray_pub_.shutdown();
 
       tracked_obstacles_.clear();
@@ -476,7 +474,6 @@ void ObstacleTracker::publishObstacles() {
 
   obstacles_.circles.clear();
   observs.poses.clear();
-  poseArray.poses.clear();
   marker_arrey.markers.clear();
 
   int cnt = 0;
@@ -493,16 +490,7 @@ void ObstacleTracker::publishObstacles() {
       observs.poses.push_back(state);
       observs.time = ros::Time::now().toSec();
 
-      somePose.position.y = ob.center.y;
-      somePose.position.z = 0.5;
-      somePose.position.x = ob.center.x;
-      double theta = state.theta;
-      somePose.orientation.x = 0;
-      somePose.orientation.y = 0;
-      somePose.orientation.z = sin(theta/2);
-      somePose.orientation.w = cos(theta/2);
-      poseArray.poses.push_back(somePose);
-
+      // create arrow markers that RVIZ can show
       marker.header.frame_id = "map";
       marker.header.stamp = ros::Time();
       marker.ns = "my_namespace";
@@ -515,8 +503,8 @@ void ObstacleTracker::publishObstacles() {
       marker.pose.position.z = 0.5;
       marker.pose.orientation.x = 0.0;
       marker.pose.orientation.y = 0.0;
-      marker.pose.orientation.z = sin(theta/2);
-      marker.pose.orientation.w = cos(theta/2);
+      marker.pose.orientation.z = sin(state.theta/2);
+      marker.pose.orientation.w = cos(state.theta/2);
       marker.scale.x = sqrt(pow(ob.velocity.y, 2.0) + pow(ob.velocity.x, 2.0));
       marker.scale.y = 0.1;
       marker.scale.z = 0.1;
@@ -536,9 +524,6 @@ void ObstacleTracker::publishObstacles() {
   obstacles_pub_.publish(obstacles_msg);
 
   pose2d_pub_.publish(observs);     // Publish a customized format massage to Owen's code.
-  poseArray.header.stamp = ros::Time::now();
-  poseArray.header.frame_id = obstacles_.header.frame_id;
-  posearray_pub_.publish(poseArray); // Publish an arrow that RVIZ reads.
   markerarray_pub_.publish(marker_arrey);
 }
 
