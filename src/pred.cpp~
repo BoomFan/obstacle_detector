@@ -1,0 +1,84 @@
+#include "vector"
+#include "cmath"
+#include "algorithm"
+
+using namespace std;
+
+struct PointPred{
+    float x;
+    float y;
+    PointPred(float x_n, float y_n){
+        x = x_n;
+        y = y_n;
+    }
+
+};
+PointPred mult(PointPred x, float lambda){
+    return PointPred(x.x * lambda, x.y * lambda);
+}
+
+PointPred add(PointPred x_1, PointPred x_2){
+    return PointPred(x_1.x + x_2.x, x_1.y + x_2.y);
+}
+float norm(PointPred x){
+    return sqrt(x.x * x.x + x.y * x.y);
+}
+
+
+float norm_inner_product(PointPred x, PointPred y){
+    if (norm(x) == 0 || norm(y) == 0){
+        return 0;
+    }
+    return (x.x * y.x + x.y * y.y) / (norm(x) * norm(y));
+}
+
+PointPred perp_unit_vector(PointPred x){
+    PointPred x_n = PointPred(-1* x.y  / norm(x), x.x / norm(x));
+    return x_n;
+}
+
+float min_dist_line (PointPred x, PointPred v_0, PointPred v_1){
+    return abs((v_1.y - v_0.y)*x.x - (v_1.x - v_0.x) * x.y - v_1.x* v_0.y - v_1.y * v_0.x)  / norm(add(v_1, mult(v_0, -1)));
+}
+
+
+vector<PointPred> predict(PointPred pos, PointPred velocity, float init_rad, float x_step, float y_step, float cone, float t){
+        vector<PointPred> res = vector<PointPred>();
+        PointPred min = add(pos, mult(velocity, -1 * init_rad/norm(velocity)));
+        int x = 0;
+        int y = 0;
+        if (velocity.y < 0){
+            y_step = abs(y_step) * -1;
+        }
+        else{
+            y_step = abs(y_step);
+        }
+        if (velocity.x < 0){
+            x_step = abs(x_step) * -1;
+        }
+        else{
+            x_step = abs(x_step);
+        }
+
+        PointPred test = add(min, PointPred(x * x_step, y * y_step));
+        while  (norm(add(mult(pos, -1), test)) < max(init_rad, t * norm(velocity))){
+            
+
+            while(norm(add(mult(pos, -1), test)) < max(init_rad, t * norm(velocity))) {
+                PointPred perp = perp_unit_vector(velocity);
+                if (((norm_inner_product(add(test, mult(pos, -1)), velocity) > cone) || 
+                      min_dist_line(test, add(pos, mult(perp, init_rad)),  add(add(pos, mult(perp, init_rad)), velocity)) < init_rad||
+                      min_dist_line(test, add(pos, mult(perp, init_rad)),  add(add(pos, mult(perp, -1* init_rad)), velocity)) < init_rad)) {
+                    res.push_back(test);
+                }
+                y += 1;
+                test = add(min, PointPred(x * x_step, y * y_step));
+            }
+            x += 1;
+            y = 0;
+            test = add(min, PointPred(x * x_step, y * y_step));
+
+        }
+        return res;
+
+}
