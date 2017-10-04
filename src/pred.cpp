@@ -24,19 +24,11 @@ float norm_inner_product(PointPred x, PointPred y){
     return (x.x * y.x + x.y * y.y) / (norm(x) * norm(y));
 }
 
-PointPred perp_unit_vector(PointPred x){
-    PointPred x_n = PointPred(-1* x.y  / norm(x), x.x / norm(x));
-    return x_n;
-}
-
-float min_dist_line (PointPred x, PointPred v_0, PointPred v_1){
-    return abs((v_1.y - v_0.y)*x.x - (v_1.x - v_0.x) * x.y - v_1.x* v_0.y - v_1.y * v_0.x)  / norm(add(v_1, mult(v_0, -1)));
-}
-
 
 vector<PointPred> predict(PointPred pos, PointPred velocity, float init_rad, float x_step, float y_step, float cone, float t){
         vector<PointPred> res = vector<PointPred>();
-        PointPred min = add(pos, mult(velocity, -1 * init_rad/norm(velocity)));
+        PointPred vec_sign = PointPred(velocity.x / abs(velocity.x), velocity.y / abs(velocity.y));
+        PointPred min = add(pos, PointPred(init_rad * -vec_sign.x, init_rad * -vec_sign.y));
         int x = 0;
         int y = 0;
         if (velocity.y < 0){
@@ -57,10 +49,7 @@ vector<PointPred> predict(PointPred pos, PointPred velocity, float init_rad, flo
             
 
             while(norm(add(mult(pos, -1), test)) < max(init_rad, t * norm(velocity))) {
-                PointPred perp = perp_unit_vector(velocity);
-                if (((norm_inner_product(add(test, mult(pos, -1)), velocity) > cone) || 
-                      min_dist_line(test, add(pos, mult(perp, init_rad)),  add(add(pos, mult(perp, init_rad)), velocity)) < init_rad||
-                      min_dist_line(test, add(pos, mult(perp, init_rad)),  add(add(pos, mult(perp, -1* init_rad)), velocity)) < init_rad)) {
+                if ((norm_inner_product(add(test, mult(pos, -1)), velocity) > cone) || (norm(add(test, mult(pos, -1))) < init_rad)) {
                     res.push_back(test);
                 }
                 y += 1;
@@ -74,3 +63,4 @@ vector<PointPred> predict(PointPred pos, PointPred velocity, float init_rad, flo
         return res;
 
 }
+

@@ -485,11 +485,11 @@ void ObstacleTracker::publishObstacles() {
   marker_arrey.markers.clear();
 
   int cnt = 0;
-  float init_rad = 1;
-  float x_step = 0.1;
-  float y_step = 0.1;
-  float cone = 10;
-  float predict_time = 5;
+  float init_rad = 0.3;
+  float x_step = 0.05;
+  float y_step = 0.05;
+  float cone = 0.92;
+  float predict_time = 1.5;
   vector<PointPred> cloudpoints;
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_3d(new pcl::PointCloud<pcl::PointXYZRGB>);
 
@@ -531,22 +531,21 @@ void ObstacleTracker::publishObstacles() {
       marker_arrey.markers.push_back(marker);
 
       // Predict the posiotion of each pedestrian, and save the contour as a pointcloud
-      // cloudpoints = predict(PointPred(ob.center.x,ob.center.y), PointPred(ob.velocity.x, ob.velocity.y), init_rad, x_step, y_step, cone, predict_time);
+      cloudpoints = predict(PointPred(ob.center.x,ob.center.y), PointPred(ob.velocity.x, ob.velocity.y), init_rad, x_step, y_step, cone, predict_time);
       // cloudpoints = predict(PointPred(1,1), PointPred(0.5, 0.5), init_rad, x_step, y_step, cone, predict_time);
-      // ROS_INFO("cloudpoints.size() is: %li", cloudpoints.size());
-      // if(cloudpoints.size()>0){
-      //   for (int i=0; i<cloudpoints.size(); i++){
-      //     pcl::PointXYZRGB point;
-      //     point.r = 255;
-      //     point.g = 255;
-      //     point.b = 255;
-      //     point.x = cloudpoints[i].x; //Unmornalize and then convert from mm to meter
-      //     point.y = cloudpoints[i].y; //Unmornalize and then convert from mm to meter
-      //     point.z = 0; //Unmornalize and then convert from mm to meter
-      //     // std::cout << "point is: " << point << std::endl;
-      //     cloud_3d->points.push_back(point);
-      //   }
-
+      ROS_INFO("cloudpoints.size() is: %li", cloudpoints.size());
+      if(cloudpoints.size()>0){
+        for (int i=0; i<cloudpoints.size(); i++){
+          pcl::PointXYZRGB point;
+          point.r = 255;
+          point.g = 255;
+          point.b = 255;
+          point.x = cloudpoints[i].x; //Unmornalize and then convert from mm to meter
+          point.y = cloudpoints[i].y; //Unmornalize and then convert from mm to meter
+          point.z = 0; //Unmornalize and then convert from mm to meter
+          // std::cout << "point is: " << point << std::endl;
+          cloud_3d->points.push_back(point);
+        }
       }
       
     }
@@ -561,13 +560,12 @@ void ObstacleTracker::publishObstacles() {
   pose2d_pub_.publish(observs);     // Publish a customized format massage to Owen's code.
   markerarray_pub_.publish(marker_arrey);
   // ROS_INFO("cloud_3d->points.size() is: %li", cloud_3d->points.size());
-  if(cloud_3d->points.size() > 0){
-    ros::Time now = ros::Time::now();
-    pcl_conversions::toPCL(now, cloud_3d->header.stamp);
-    cloud_3d->header.frame_id = "map";
-    pred_cloud_pub_.publish(*cloud_3d);
-    ROS_INFO("New cloud is published");
-  }
+
+  ros::Time now = ros::Time::now();
+  pcl_conversions::toPCL(now, cloud_3d->header.stamp);
+  cloud_3d->header.frame_id = "map";
+  pred_cloud_pub_.publish(*cloud_3d);
+  ROS_INFO("New cloud is published");
 
 }
 

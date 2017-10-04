@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /Obstacles1
         - /PoseArray1
+        - /PointCloud22
         - /MarkerArray1
       Splitter Ratio: 0.5
     Tree Height: 931
@@ -379,7 +380,7 @@ Visualization Manager:
       Queue Size: 10
       Selectable: true
       Size (Pixels): 3
-      Size (m): 0.05
+      Size (m): 0.03
       Style: Flat Squares
       Topic: /forecast/output
       Unreliable: false
@@ -418,7 +419,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 9.84099
+      Distance: 8.05425
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -430,10 +431,10 @@ Visualization Manager:
         Z: 0
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.819796
+      Pitch: 1.5698
       Target Frame: map
       Value: Orbit (rviz)
-      Yaw: 3.71501
+      Yaw: 3.31001
     Saved:
       - Class: rviz/Orbit
         Distance: 13.3532
