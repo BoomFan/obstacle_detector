@@ -101,7 +101,7 @@ bool ObstacleTracker::updateParams(std_srvs::Empty::Request &req, std_srvs::Empt
 
       pose2d_pub_ = nh_.advertise<obstacle_detector::Observation>("/forecast/input", 1);               // Publish a customized format massage to Owen's code for pedestrian prediction.
       markerarray_pub_ = nh_.advertise<visualization_msgs::MarkerArray>( "/cylinder_velocity", 0 );    // Publish arrows in marker array(with magnitude) that RVIZ reads.
-      pred_cloud_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("forecast/output", 0);      // Publish poinclouds for pedestrian prediction.
+      pred_cloud_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("/forecast/output", 0);      // Publish poinclouds for pedestrian prediction.
 
 
       timer_.start();

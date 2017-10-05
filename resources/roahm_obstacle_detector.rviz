@@ -4,8 +4,6 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /Obstacles1
-        - /PoseArray1
         - /PointCloud22
         - /MarkerArray1
       Splitter Ratio: 0.5
@@ -76,7 +74,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.01
       Style: Points
-      Topic: /front_scan
+      Topic: /first
       Unreliable: true
       Use Fixed Frame: true
       Use rainbow: true
@@ -123,7 +121,7 @@ Visualization Manager:
       Color: 85; 170; 255
       Color Transformer: FlatColor
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -140,7 +138,7 @@ Visualization Manager:
       Unreliable: true
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -339,7 +337,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: Intensity
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -356,7 +354,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -419,7 +417,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 8.05425
+      Distance: 6.70238
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -431,10 +429,10 @@ Visualization Manager:
         Z: 0
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 1.5698
+      Pitch: 1.3248
       Target Frame: map
       Value: Orbit (rviz)
-      Yaw: 3.31001
+      Yaw: 2.81502
     Saved:
       - Class: rviz/Orbit
         Distance: 13.3532
