@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>obstacle_detector</name>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
   <description>Detect obstacles in form of line segments and circles from 2D laser scans. Then track circle obstacles for pedestrian tracking.</description>
   <maintainer email="fanbu@umich.edu">Fan Bu</maintainer>
-  <author>Mateusz Przybyla</author>
+  <author>Original Author: Mateusz Przybyla</author>
   <license>BSD</license>
 
   <buildtool_depend>catkin</buildtool_depend>

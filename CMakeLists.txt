@@ -37,6 +37,11 @@ add_library(obstacle_publisher src/obstacle_publisher.cpp)
 target_link_libraries(obstacle_publisher ${catkin_LIBRARIES})
 add_dependencies(obstacle_publisher ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
+add_library(obstacle_projector src/obstacle_projector.cpp src/pred.cpp)
+target_link_libraries(obstacle_projector ${catkin_LIBRARIES} ${ARMADILLO_LIBRARIES} ${PCL_LIBRARY_DIRS})
+add_dependencies(obstacle_projector ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${PCL_LIBRARIES})
+
+
 #
 # Build nodes
 #
@@ -52,6 +57,9 @@ target_link_libraries(obstacle_tracker_node obstacle_tracker ${PCL_LIBRARIES})
 add_executable(obstacle_publisher_node src/nodes/obstacle_publisher_node.cpp)
 target_link_libraries(obstacle_publisher_node obstacle_publisher)
 
+add_executable(obstacle_projector_node src/nodes/obstacle_projector_node.cpp)
+target_link_libraries(obstacle_projector_node obstacle_projector ${PCL_LIBRARIES})
+
 #
 # Build nodelets
 #
@@ -60,9 +68,10 @@ add_library(${PROJECT_NAME}_nodelets
   src/nodelets/obstacle_extractor_nodelet.cpp
   src/nodelets/obstacle_tracker_nodelet.cpp
   src/nodelets/obstacle_publisher_nodelet.cpp
+  src/nodelets/obstacle_projector_nodelet.cpp
   src/pred.cpp
   ${PCL_LIBRARY_DIRS})
-target_link_libraries(${PROJECT_NAME}_nodelets scans_merger obstacle_extractor obstacle_tracker obstacle_publisher ${PCL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_nodelets scans_merger obstacle_extractor obstacle_tracker obstacle_publisher obstacle_projector ${PCL_LIBRARIES})
 
 #
 # Build rviz plugins
@@ -98,7 +107,7 @@ add_dependencies(${PROJECT_NAME}_gui ${catkin_EXPORTED_TARGETS} ${PCL_LIBRARIES}
 #
 # Install libraries
 #
-install(TARGETS scans_merger obstacle_extractor obstacle_tracker obstacle_publisher ${PROJECT_NAME}_nodelets ${PROJECT_NAME}_gui
+install(TARGETS scans_merger obstacle_extractor obstacle_tracker obstacle_publisher obstacle_projector ${PROJECT_NAME}_nodelets ${PROJECT_NAME}_gui
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
@@ -106,7 +115,7 @@ install(TARGETS scans_merger obstacle_extractor obstacle_tracker obstacle_publis
 #
 # Install nodes
 #
-install(TARGETS scans_merger_node obstacle_extractor_node obstacle_tracker_node obstacle_publisher_node
+install(TARGETS scans_merger_node obstacle_extractor_node obstacle_tracker_node obstacle_publisher_node obstacle_projector_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 #

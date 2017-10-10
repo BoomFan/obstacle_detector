@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- * Copyright (c) 2017, Poznan University of Michigan
+ * Copyright (c) 2017, University of Michigan, ROAHM Lab
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -12,7 +12,7 @@
  *     * Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Poznan University of Technology nor the names
+ *     * Neither the name of the University of Michigan nor the names
  *       of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
  *
@@ -30,29 +30,45 @@
  */
 
 /*
- * Author: Mateusz Przybyla
+ * Author: Fan Bu
  */
 
-#include "obstacle_detector/obstacle_publisher.h"
+#include <memory>
+#include <nodelet/nodelet.h>
 
-using namespace obstacle_detector;
+#include "obstacle_detector/obstacle_projector.h"
 
-int main(int argc, char** argv) {
-  ros::init(argc, argv, "obstacle_publisher", ros::init_options::NoRosout);
-  ros::NodeHandle nh("");
-  ros::NodeHandle nh_local("~");
+namespace obstacle_detector
+{
 
-  try {
-    ROS_INFO("[Obstacle Publisher]: Initializing node");
-    ObstaclePublisher op(nh, nh_local);
-    ros::spin();
+class ObstacleProjectorNodelet : public nodelet::Nodelet
+{
+public:
+  virtual void onInit() {
+    ros::NodeHandle nh = getNodeHandle();
+    ros::NodeHandle nh_local = getPrivateNodeHandle();
+
+    try {
+      NODELET_INFO("[Obstacle Projector]: Initializing nodelet");
+      obstacle_tracker_ = std::shared_ptr<ObstacleTracker>(new ObstacleTracker(nh, nh_local));
+    }
+    catch (const char* s) {
+      NODELET_FATAL_STREAM("[Obstacle Projector]: " << s);
+    }
+    catch (...) {
+      NODELET_FATAL_STREAM("[Obstacle Projector]: Unexpected error");
+    }
   }
-  catch (const char* s) {
-    ROS_FATAL_STREAM("[Obstacle Publisher]: " << s);
-  }
-  catch (...) {
-    ROS_FATAL_STREAM("[Obstacle Publisher]: Unexpected error");
+
+  virtual ~ObstacleProjectorNodelet() {
+    NODELET_INFO("[Obstacle Projector]: Shutdown");
   }
 
-  return 0;
-}
+private:
+  std::shared_ptr<ObstacleProjector> obstacle_tracker_;
+};
+
+} // namespace obstacle_detector
+
+#include <pluginlib/class_list_macros.h>
+PLUGINLIB_EXPORT_CLASS(obstacle_detector::ObstacleTrackerNodelet, nodelet::Nodelet)

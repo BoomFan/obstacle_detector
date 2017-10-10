@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- * Copyright (c) 2017, Poznan University of Michigan
+ * Copyright (c) 2017, University of Michigan, ROAHM Lab
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -12,7 +12,7 @@
  *     * Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Poznan University of Technology nor the names
+ *     * Neither the name of the University of Michigan nor the names
  *       of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
  *
@@ -30,28 +30,28 @@
  */
 
 /*
- * Author: Mateusz Przybyla
+ * Author: Fan Bu
  */
 
-#include "obstacle_detector/obstacle_publisher.h"
+#include "obstacle_detector/obstacle_projector.h"
 
 using namespace obstacle_detector;
 
 int main(int argc, char** argv) {
-  ros::init(argc, argv, "obstacle_publisher", ros::init_options::NoRosout);
+  ros::init(argc, argv, "obstacle_projector", ros::init_options::NoRosout);
   ros::NodeHandle nh("");
   ros::NodeHandle nh_local("~");
 
   try {
-    ROS_INFO("[Obstacle Publisher]: Initializing node");
-    ObstaclePublisher op(nh, nh_local);
+    ROS_INFO("[Obstacle Projector]: Initializing node");
+    ObstacleProjector oj(nh, nh_local);
     ros::spin();
   }
   catch (const char* s) {
-    ROS_FATAL_STREAM("[Obstacle Publisher]: " << s);
+    ROS_FATAL_STREAM("[Obstacle Projector]: " << s);
   }
   catch (...) {
-    ROS_FATAL_STREAM("[Obstacle Publisher]: Unexpected error");
+    ROS_FATAL_STREAM("[Obstacle Projector]: Unexpected error");
   }
 
   return 0;
