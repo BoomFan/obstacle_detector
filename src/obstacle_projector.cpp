@@ -96,12 +96,15 @@ bool ObstacleProjector::updateParams(std_srvs::Empty::Request &req, std_srvs::Em
 
   if (p_active_ != prev_active) {
     if (p_active_) {
-      obstacles_sub_ = nh_.subscribe("raw_obstacles", 10, &ObstacleProjector::obstaclesCallback, this);
-      obstacles_pub_ = nh_.advertise<obstacle_detector::Obstacles>("tracked_obstacles", 10);
+      obs_pcd_sub_ = nh_.subscribe("/forecast/output", 1, &ObstacleProjector::obsPcdCallback, this);
+      image_sub_ = nh_.subscribe("/camera/left/image_rect_color", 1, &ObstacleProjector::imageCallback, this);
+      // TODO: Add a camera info call back
+      // TODO: Add a camera info call back
+      // TODO: Add a camera info call back
 
-      pose2d_pub_ = nh_.advertise<obstacle_detector::Observation>("/forecast/input", 1);               // Publish a customized format massage to Owen's code for pedestrian prediction.
-      markerarray_pub_ = nh_.advertise<visualization_msgs::MarkerArray>( "/cylinder_velocity", 0 );    // Publish arrows in marker array(with magnitude) that RVIZ reads.
-      pred_cloud_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("/forecast/output", 0);      // Publish poinclouds for pedestrian prediction.
+
+      image_transport::ImageTransport it(nh_);
+      img_projected_pub_ = it.advertise("/forecast/images", 1);
 
 
       timer_.start();

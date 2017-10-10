@@ -90,6 +90,9 @@ private:
   ros::NodeHandle nh_local_;
 
   ros::Subscriber obstacles_sub_;
+
+
+  image_transport::Publisher poseLeftImagePublisher;
   ros::Publisher obstacles_pub_;
   ros::Publisher pose2d_pub_;        // Publish a customized format massage to Owen's code for pedestrian prediction.
   ros::Publisher markerarray_pub_;   // Publish arrows in marker array(with magnitude) that RVIZ reads.
