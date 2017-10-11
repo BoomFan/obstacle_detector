@@ -490,7 +490,7 @@ void ObstacleTracker::publishObstacles() {
   float y_step = 0.05;
   float cone = 0.92;
   float predict_time = 1.5;
-  vector<PointPred> cloudpoints;
+  vector<PointPred> cloudpoints;  // PointPred is a self defined dataformat by Owen.
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_3d(new pcl::PointCloud<pcl::PointXYZRGB>);
 
   for (auto& tracked_obstacle : tracked_obstacles_) {

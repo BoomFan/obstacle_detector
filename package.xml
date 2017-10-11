@@ -23,6 +23,10 @@
   <depend>laser_geometry</depend>
   <depend>pcl</depend>
   <depend>pcl_ros</depend>
+  <depend>tf2_ros</depend>
+  <depend>opencv2</depend>
+  <depend>cv_bridge</depend>
+  <depend>image_transport</depend>
 
   <export>
     <rviz plugin="${prefix}/rviz_plugins.xml"/>

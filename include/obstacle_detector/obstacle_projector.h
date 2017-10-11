@@ -53,6 +53,24 @@
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 
+// PCL includes
+#include <pcl_ros/point_cloud.h>
+#include <pcl_ros/transforms.h>
+#include <pcl_conversions/pcl_conversions.h>
+#include <tf2_ros/transform_listener.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <geometry_msgs/TransformStamped.h>
+
+// OpenCV includes
+#include <image_transport/image_transport.h>
+#include <opencv2/core/core.hpp>
+#include <opencv2/contrib/contrib.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <cv_bridge/cv_bridge.h>
+#include <opencv2/gpu/gpu.hpp>
+#include <opencv2/calib3d/calib3d.hpp>
+
 namespace obstacle_detector
 {
 
@@ -64,54 +82,48 @@ public:
 private:
   bool updateParams(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
   void timerCallback(const ros::TimerEvent&);
-  void obstaclesCallback(const obstacle_detector::Obstacles::ConstPtr new_obstacles);
+  void obsPcdCallback(const pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr pred_pcd_ptr);
+  void imageCallback(const sensor_msgs::ImageConstPtr& img_ptr);
 
   void initialize() { std_srvs::Empty empt; updateParams(empt.request, empt.response); }
 
-  double obstacleCostFunction(const CircleObstacle& new_obstacle, const CircleObstacle& old_obstacle);
-  void calculateCostMatrix(const std::vector<CircleObstacle>& new_obstacles, arma::mat& cost_matrix);
-  void calculateRowMinIndices(const arma::mat& cost_matrix, std::vector<int>& row_min_indices);
-  void calculateColMinIndices(const arma::mat& cost_matrix, std::vector<int>& col_min_indices);
+  // double obstacleCostFunction(const CircleObstacle& new_obstacle, const CircleObstacle& old_obstacle);
+  // void calculateCostMatrix(const std::vector<CircleObstacle>& new_obstacles, arma::mat& cost_matrix);
+  // void calculateRowMinIndices(const arma::mat& cost_matrix, std::vector<int>& row_min_indices);
+  // void calculateColMinIndices(const arma::mat& cost_matrix, std::vector<int>& col_min_indices);
 
-  bool fusionObstacleUsed(const int idx, const std::vector<int>& col_min_indices, const std::vector<int>& used_new, const std::vector<int>& used_old);
-  bool fusionObstaclesCorrespond(const int idx, const int jdx, const std::vector<int>& col_min_indices, const std::vector<int>& used_old);
-  bool fissionObstacleUsed(const int idx, const int T, const std::vector<int>& row_min_indices, const std::vector<int>& used_new, const std::vector<int>& used_old);
-  bool fissionObstaclesCorrespond(const int idx, const int jdx, const std::vector<int>& row_min_indices, const std::vector<int>& used_new);
+  // bool fusionObstacleUsed(const int idx, const std::vector<int>& col_min_indices, const std::vector<int>& used_new, const std::vector<int>& used_old);
+  // bool fusionObstaclesCorrespond(const int idx, const int jdx, const std::vector<int>& col_min_indices, const std::vector<int>& used_old);
+  // bool fissionObstacleUsed(const int idx, const int T, const std::vector<int>& row_min_indices, const std::vector<int>& used_new, const std::vector<int>& used_old);
+  // bool fissionObstaclesCorrespond(const int idx, const int jdx, const std::vector<int>& row_min_indices, const std::vector<int>& used_new);
 
-  void fuseObstacles(const std::vector<int>& fusion_indices, const std::vector<int>& col_min_indices,
-                     std::vector<TrackedObstacle>& new_tracked, const Obstacles::ConstPtr& new_obstacles);
-  void fissureObstacle(const std::vector<int>& fission_indices, const std::vector<int>& row_min_indices,
-                       std::vector<TrackedObstacle>& new_tracked, const Obstacles::ConstPtr& new_obstacles);
+  // void fuseObstacles(const std::vector<int>& fusion_indices, const std::vector<int>& col_min_indices,
+  //                    std::vector<TrackedObstacle>& new_tracked, const Obstacles::ConstPtr& new_obstacles);
+  // void fissureObstacle(const std::vector<int>& fission_indices, const std::vector<int>& row_min_indices,
+  //                      std::vector<TrackedObstacle>& new_tracked, const Obstacles::ConstPtr& new_obstacles);
 
-  void updateObstacles();
-  void publishObstacles();
+  // void updateObstacles();
+  void publishPredictImage();
 
   ros::NodeHandle nh_;
   ros::NodeHandle nh_local_;
 
-  ros::Subscriber obstacles_sub_;
+  ros::Subscriber obs_pcd_sub_;  // A subcriber for prediction pointclouds
+  ros::Subscriber image_sub_;    // A subcriber for camera images
 
 
-  image_transport::Publisher poseLeftImagePublisher;
-  ros::Publisher obstacles_pub_;
-  ros::Publisher pose2d_pub_;        // Publish a customized format massage to Owen's code for pedestrian prediction.
-  ros::Publisher markerarray_pub_;   // Publish arrows in marker array(with magnitude) that RVIZ reads.
-  ros::Publisher pred_cloud_pub_;    // Publish poinclouds for pedestrian prediction.
+  image_transport::Publisher img_projected_pub_;
 
   ros::ServiceServer params_srv_;
   ros::Timer timer_;
 
-  double radius_margin_;
-  obstacle_detector::Obstacles obstacles_;
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr now_pcd_ptr;
 
-  obstacle_detector::Observation observs;         // observs is a customized msg format
-  geometry_msgs::Pose2D state;                    // state is a subset of Observation
-  visualization_msgs::MarkerArray marker_arrey;   // marker_array can contain arrows with
-  visualization_msgs::Marker marker;
+  // define transformation listener
+  tf::TransformListener tf_listener;
+  tf::StampedTransform transform;
 
-  std::vector<TrackedObstacle> tracked_obstacles_;
-  std::vector<CircleObstacle> untracked_obstacles_;
-
+  cv::Mat now_img;
   // Parameters
   bool p_active_;
   bool p_copy_segments_;
