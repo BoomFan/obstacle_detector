@@ -82,7 +82,7 @@ public:
 private:
   bool updateParams(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res);
   void timerCallback(const ros::TimerEvent&);
-  void obsPcdCallback(const pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr pred_pcd_ptr);
+  void obsPcdCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr pred_pcd_ptr);
   void imageCallback(const sensor_msgs::ImageConstPtr& img_ptr);
 
   void initialize() { std_srvs::Empty empt; updateParams(empt.request, empt.response); }
@@ -117,7 +117,7 @@ private:
   ros::ServiceServer params_srv_;
   ros::Timer timer_;
 
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr now_pcd_ptr;
+  pcl::PointCloud<pcl::PointXYZRGB> now_pcd;
 
   // define transformation listener
   tf::TransformListener tf_listener;
@@ -131,12 +131,8 @@ private:
   double p_tracking_duration_;
   double p_loop_rate_;
   double p_sampling_time_;
-  double p_sensor_rate_;
-  double p_min_correspondence_cost_;
-  double p_std_correspondence_dev_;
-  double p_process_variance_;
-  double p_process_rate_variance_;
-  double p_measurement_variance_;
+  
+  int pixel_per_point_;
 
   std::string p_frame_id_;
 };

@@ -84,6 +84,7 @@ bool ObstacleTracker::updateParams(std_srvs::Empty::Request &req, std_srvs::Empt
   nh_local_.param<double>("process_variance", p_process_variance_, 0.01);
   nh_local_.param<double>("process_rate_variance", p_process_rate_variance_, 0.1);
   nh_local_.param<double>("measurement_variance", p_measurement_variance_, 1.0);
+  nh_local_.param<double>("speed_threshold", speed_threshold_, 0.1);
 
   nh_local_.param<string>("frame_id", p_frame_id_, string("map"));
   obstacles_.header.frame_id = p_frame_id_;
@@ -485,7 +486,7 @@ void ObstacleTracker::publishObstacles() {
   marker_arrey.markers.clear();
 
   int cnt = 0;
-  float init_rad = 0.3;
+  float init_rad = 0.0;
   float x_step = 0.05;
   float y_step = 0.05;
   float cone = 0.92;
@@ -499,7 +500,7 @@ void ObstacleTracker::publishObstacles() {
     obstacles_.circles.push_back(ob);
 
     // Here comes ROAHMLab data format for pedestrian prediction
-    if ((pow(ob.velocity.y, 2.0) + pow(ob.velocity.x, 2.0)) > 0.015){
+    if ((pow(ob.velocity.y, 2.0) + pow(ob.velocity.x, 2.0)) > pow(speed_threshold_, 2.0)){
       state.y = ob.center.y;
       state.x = ob.center.x;
       state.theta = atan2(ob.velocity.y, ob.velocity.x);
@@ -507,7 +508,7 @@ void ObstacleTracker::publishObstacles() {
       observs.time = ros::Time::now().toSec();
 
       // create arrow markers that RVIZ can show
-      marker.header.frame_id = "map";
+      marker.header.frame_id = p_frame_id_;
       marker.header.stamp = ros::Time();
       marker.ns = "my_namespace";
       marker.id = cnt;
@@ -563,7 +564,7 @@ void ObstacleTracker::publishObstacles() {
 
   ros::Time now = ros::Time::now();
   pcl_conversions::toPCL(now, cloud_3d->header.stamp);
-  cloud_3d->header.frame_id = "map";
+  cloud_3d->header.frame_id = p_frame_id_;
   pred_cloud_pub_.publish(*cloud_3d);
   ROS_INFO("New cloud is published");
 

@@ -71,17 +71,10 @@ bool ObstacleProjector::updateParams(std_srvs::Empty::Request &req, std_srvs::Em
   nh_local_.param<bool>("active", p_active_, true);
   nh_local_.param<bool>("copy_segments", p_copy_segments_, true);
 
-  nh_local_.param<double>("loop_rate", p_loop_rate_, 100.0);
+  nh_local_.param<double>("loop_rate", p_loop_rate_, 20.0);
   p_sampling_time_ = 1.0 / p_loop_rate_;
-  p_sensor_rate_ = 10.0;    // 10 Hz for Hokuyo
 
-  nh_local_.param<double>("tracking_duration", p_tracking_duration_, 2.0);
-  nh_local_.param<double>("min_correspondence_cost", p_min_correspondence_cost_, 0.3);
-  nh_local_.param<double>("std_correspondence_dev", p_std_correspondence_dev_, 0.15);
-  nh_local_.param<double>("process_variance", p_process_variance_, 0.01);
-  nh_local_.param<double>("process_rate_variance", p_process_rate_variance_, 0.1);
-  nh_local_.param<double>("measurement_variance", p_measurement_variance_, 1.0);
-
+  nh_local_.param<int>("pixel_per_point", pixel_per_point_, 5);
   nh_local_.param<string>("frame_id", p_frame_id_, string("map"));
 
   timer_.setPeriod(ros::Duration(p_sampling_time_), false);
@@ -126,7 +119,8 @@ void ObstacleProjector::timerCallback(const ros::TimerEvent&) {
   publishPredictImage();
 }
 
-void ObstacleProjector::obsPcdCallback(const pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr pred_pcd_ptr) {
+void ObstacleProjector::obsPcdCallback(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr pred_pcd_ptr) {
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_after(new pcl::PointCloud<pcl::PointXYZRGB>);
   // If there is data in pointcloud, then transform the frame into "camera_link" frame
   if (pred_pcd_ptr->width > 0) {
     try{
@@ -137,30 +131,55 @@ void ObstacleProjector::obsPcdCallback(const pcl::PointCloud<pcl::PointXYZRGB>::
       return;
     }
     // Make new point cloud that is transformed into "camera_link" frame
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_transformed(new pcl::PointCloud<pcl::PointXYZRGB>);
-    pcl_ros::transformPointCloud(*pred_pcd_ptr, *now_pcd_ptr, transform);
-  }
 
+    pcl_ros::transformPointCloud(*pred_pcd_ptr, *cloud_after, transform);
+    // ROS_INFO("New pointcloud width is : %i.", now_pcd.width);
+  }
+  // We still update the current pointcloud even it is empty!
+  now_pcd = *cloud_after;
 }
 
 void ObstacleProjector::imageCallback(const sensor_msgs::ImageConstPtr& img_ptr) {
   cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(img_ptr, "rgb8");
-  printf("Received one new Image.\n");
-  //cv::imwrite("rgb.png", cv_ptr->image);
-  //cv::Mat img = cv_ptr->image;
   now_img = cv_ptr->image;
+  // ROS_INFO("New image height is: %i.", now_img.size().height);
 }
 
 void ObstacleProjector::publishPredictImage() {
+
+  if(now_img.size().height>0){// Check if image exists
+    if(now_pcd.size()>0){// Check if pointcloud exists
+      // ROS_INFO("New pointcloud size is : %li", now_pcd.size());
+      // ROS_INFO("The first point is : [%f, %f, %f] ", now_pcd.points[0].x, now_pcd.points[0].y, now_pcd.points[0].z);
+
+      for(int k=0; k<now_pcd.size(); k++){
+        double ptz = now_pcd.points[k].x;       // I have to do this wierd translation because camera frame is defined incorrectly
+        double ptx = -now_pcd.points[k].y;      // I have to do this wierd translation because camera frame is defined incorrectly
+        double pty = -now_pcd.points[k].z;      // I have to do this wierd translation because camera frame is defined incorrectly
+
+        int new_x = int((686.8260*ptx + 617.8046*ptz)/ptz);
+        int new_y = int((685.6795*pty + 367.0791*ptz)/ptz);
+        if (new_x>pixel_per_point_ and new_x<(now_img.size().width-pixel_per_point_) and new_y>pixel_per_point_ and new_y<(now_img.size().height-pixel_per_point_)){
+          for(int i=-int(pixel_per_point_/2); i<int(pixel_per_point_/2); i++){
+            for(int j=-int(pixel_per_point_/2); j<int(pixel_per_point_/2); j++){
+              // ROS_INFO("First red color is : %f", now_img.at<double>(0, 0));
+              // now_img[new_y+i][new_x+j].r= 255;  
+              // now_img[new_y+i][new_x+j].g= 255;  
+              // now_img[new_y+i][new_x+j].b= 255;  
+              now_img.at<cv::Vec3b>(new_y+i, new_x+j)[0]= 255; 
+              now_img.at<cv::Vec3b>(new_y+i, new_x+j)[1]= 255;  
+              now_img.at<cv::Vec3b>(new_y+i, new_x+j)[2]= 255;  
+            }
+          }
+        }
+      }
+    }
+
+  }
+  // We'll publish the image even with an empty pointcloud
   ros::Time now = ros::Time::now();
   sensor_msgs::ImagePtr output = cv_bridge::CvImage(std_msgs::Header(), "rgb8", now_img).toImageMsg();
   output->header.stamp = now;
   img_projected_pub_.publish(output);
 }
 
-// Ugly initialization of static members of tracked obstacles...
-int    TrackedObstacle::s_fade_counter_size_     = 0;
-double TrackedObstacle::s_sampling_time_         = 100.0;
-double TrackedObstacle::s_process_variance_      = 0.0;
-double TrackedObstacle::s_process_rate_variance_ = 0.0;
-double TrackedObstacle::s_measurement_variance_  = 0.0;
