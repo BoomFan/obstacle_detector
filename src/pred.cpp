@@ -2,6 +2,7 @@
 #include "cmath"
 #include "algorithm"
 #include "pred.h"
+#include "iostream"
 
 using namespace std;
 
@@ -24,43 +25,53 @@ float norm_inner_product(PointPred x, PointPred y){
     return (x.x * y.x + x.y * y.y) / (norm(x) * norm(y));
 }
 
+PointPred perpendicular_unit_vector(PointPred x){
+    if (norm(x) == 0){
+        return PointPred(0,0);
+    }
+    return mult(PointPred(-x.y, x.x), 1/norm(x));
+}
 
-vector<PointPred> predict(PointPred pos, PointPred velocity, float init_rad, float x_step, float y_step, float cone, float t){
+
+vector<PointPred> predict(PointPred pos, PointPred velocity, float min_radius, float max_radius, float x_step, float y_step, float t){
         vector<PointPred> res = vector<PointPred>();
-        PointPred vec_sign = PointPred(velocity.x / abs(velocity.x), velocity.y / abs(velocity.y));
-        PointPred min = add(pos, PointPred(init_rad * -vec_sign.x, init_rad * -vec_sign.y));
-        int x = 0;
+
+        int x = -1 * (min_radius/x_step - 1);
         int y = 0;
-        if (velocity.y < 0){
-            y_step = abs(y_step) * -1;
-        }
-        else{
-            y_step = abs(y_step);
-        }
-        if (velocity.x < 0){
-            x_step = abs(x_step) * -1;
-        }
-        else{
-            x_step = abs(x_step);
-        }
 
-        PointPred test = add(min, PointPred(x * x_step, y * y_step));
-        while  (norm(add(mult(pos, -1), test)) < max(init_rad, t * norm(velocity))){
-            
+        PointPred perp = perpendicular_unit_vector(velocity);
+        PointPred unit_velocity = mult(velocity, 1/norm(velocity));
 
-            while(norm(add(mult(pos, -1), test)) < max(init_rad, t * norm(velocity))) {
-                if ((norm_inner_product(add(test, mult(pos, -1)), velocity) > cone) || (norm(add(test, mult(pos, -1))) < init_rad)) {
-                    res.push_back(test);
+        float vn = norm(velocity);
+        float steps = 20;
+        float rad;
+        bool flag;
+        while (x * x_step <= vn * t + max_radius) {    
+            while (y * y_step <= min_radius + max(0, x) * x_step/(vn * t) * (max_radius - min_radius)) {
+                if (x * x_step + min_radius <= min_radius && y * y_step >  sqrt( min_radius*min_radius - (abs(x) * x_step)*(abs(x) * x_step) ) ){
+                    break;
+                } else if (x * x_step > vn * t && y * y_step > sqrt( max_radius*max_radius - (x * x_step - vn * t)*(x * x_step - vn * t) ) ){
+                    break;
                 }
+                res.push_back(add(add(pos, mult(unit_velocity, x*x_step)), mult(perp, y * y_step)));
+                res.push_back(add(add(pos, mult(unit_velocity, x*x_step)), mult(perp, -1 * y * y_step)));
+                // if (x > 0){
+                //     cout << "FIRST TERM " << max(0, x) << endl;
+                //     cout << "SECOND TERM " << x_step << endl;
+                //     cout << "THIRD TERM " << (vn * t) << endl;
+                // }
                 y += 1;
-                test = add(min, PointPred(x * x_step, y * y_step));
             }
             x += 1;
             y = 0;
-            test = add(min, PointPred(x * x_step, y * y_step));
 
         }
         return res;
-
 }
 
+int main(){
+    PointPred velocity = PointPred(1,0);
+    PointPred position = PointPred(0,0);
+
+
+}

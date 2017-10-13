@@ -1,7 +1,7 @@
 <!-- Demonstation of obstacle detector -->
 <launch>
 
-  <param name="use_sim_time" value="true"/>  
+  <param name="use_sim_time" value="false"/>  
 
   <!--node name="map_to_scanner_base" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 map robot"/>
   <node name="scanner_base_to_front_scanner" pkg="tf2_ros" type="static_transform_publisher" args="0.23565 -0.0005 0.06795 0 0 0 robot front_scanner"/>
@@ -56,7 +56,7 @@
     <param name="max_split_distance"   value="0.2"/>
     <param name="max_merge_separation" value="0.2"/>
     <param name="max_merge_spread"     value="0.2"/>
-    <param name="max_circle_radius"    value="0.2"/>
+    <param name="max_circle_radius"    value="0.8"/>
     <param name="radius_enlargement"   value="0.6"/>
 
     <param name="frame_id"             value="map"/>

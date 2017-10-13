@@ -368,6 +368,7 @@ void ObstacleExtractor::mergeCircles() {
 }
 
 bool ObstacleExtractor::compareCircles(const Circle& c1, const Circle& c2, Circle& merged_circle) {
+  // ROS_INFO("Circle1.center = [%f,%f],  Circle2.center = [%f,%f]", c1.center.x, c1.center.y, c2.center.x, c2.center.y);
   if (&c1 == &c2)
     return false;
 

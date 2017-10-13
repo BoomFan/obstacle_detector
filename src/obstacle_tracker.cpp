@@ -84,6 +84,7 @@ bool ObstacleTracker::updateParams(std_srvs::Empty::Request &req, std_srvs::Empt
   nh_local_.param<double>("process_variance", p_process_variance_, 0.01);
   nh_local_.param<double>("process_rate_variance", p_process_rate_variance_, 0.1);
   nh_local_.param<double>("measurement_variance", p_measurement_variance_, 1.0);
+
   nh_local_.param<double>("speed_threshold", speed_threshold_, 0.1);
 
   nh_local_.param<string>("frame_id", p_frame_id_, string("map"));
@@ -486,11 +487,13 @@ void ObstacleTracker::publishObstacles() {
   marker_arrey.markers.clear();
 
   int cnt = 0;
-  float init_rad = 0.0;
+  float init_rad = 0.1;
+  float min_radius = 0.2;
+  float max_radius = 0.6;
   float x_step = 0.05;
   float y_step = 0.05;
   float cone = 0.92;
-  float predict_time = 1.5;
+  float predict_time = 1.2;
   vector<PointPred> cloudpoints;  // PointPred is a self defined dataformat by Owen.
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_3d(new pcl::PointCloud<pcl::PointXYZRGB>);
 
@@ -532,8 +535,19 @@ void ObstacleTracker::publishObstacles() {
       marker_arrey.markers.push_back(marker);
 
       // Predict the posiotion of each pedestrian, and save the contour as a pointcloud
-      cloudpoints = predict(PointPred(ob.center.x,ob.center.y), PointPred(ob.velocity.x, ob.velocity.y), init_rad, x_step, y_step, cone, predict_time);
-      // cloudpoints = predict(PointPred(1,1), PointPred(0.5, 0.5), init_rad, x_step, y_step, cone, predict_time);
+      ROS_INFO("Start predict");
+      // cloudpoints = predict(PointPred(ob.center.x,ob.center.y), PointPred(ob.velocity.x, ob.velocity.y), init_rad, x_step, y_step, cone, predict_time);
+      cloudpoints = predict(PointPred(ob.center.x,ob.center.y), PointPred(ob.velocity.x, ob.velocity.y), min_radius, max_radius, x_step, y_step, predict_time);
+      // cloudpoints = predict(PointPred(ob.center.x,ob.center.y), PointPred(1, 1), min_radius, max_radius, x_step, y_step, predict_time);
+      // ROS_INFO("ob.center.x is: %f", ob.center.x);
+      // ROS_INFO("ob.center.y is: %f", ob.center.y);
+      // ROS_INFO("ob.velocity.x is: %f", ob.velocity.x);
+      // ROS_INFO("ob.velocity.y is: %f", ob.velocity.y);
+      // ROS_INFO("min_radius is: %f", min_radius);
+      // ROS_INFO("max_radius is: %f", max_radius);
+      // ROS_INFO("x_step is: %f", x_step);
+      // ROS_INFO("y_step is: %f", y_step);
+      // ROS_INFO("predict_time is: %f", predict_time);
       ROS_INFO("cloudpoints.size() is: %li", cloudpoints.size());
       if(cloudpoints.size()>0){
         for (int i=0; i<cloudpoints.size(); i++){
@@ -566,7 +580,7 @@ void ObstacleTracker::publishObstacles() {
   pcl_conversions::toPCL(now, cloud_3d->header.stamp);
   cloud_3d->header.frame_id = p_frame_id_;
   pred_cloud_pub_.publish(*cloud_3d);
-  ROS_INFO("New cloud is published");
+  // ROS_INFO("New cloud is published");
 
 }
 
