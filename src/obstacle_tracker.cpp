@@ -85,7 +85,15 @@ bool ObstacleTracker::updateParams(std_srvs::Empty::Request &req, std_srvs::Empt
   nh_local_.param<double>("process_rate_variance", p_process_rate_variance_, 0.1);
   nh_local_.param<double>("measurement_variance", p_measurement_variance_, 1.0);
 
-  nh_local_.param<double>("speed_threshold", speed_threshold_, 0.1);
+  // Added bu ROAHM Lab, Fan BU
+  // These parameters are built for plotting pointclouds for pedestrian prediction.
+  nh_local_.param<double>("speed_threshold", p_speed_threshold_, 0.1);
+  nh_local_.param<float>("min_radius", min_radius, 0.4);
+  nh_local_.param<float>("max_radius", max_radius, 0.6);
+  nh_local_.param<float>("x_step ", x_step , 0.05);
+  nh_local_.param<float>("y_step", y_step, 0.05);
+  nh_local_.param<float>("cone", cone, 0.92);
+  nh_local_.param<float>("predict_time", predict_time, 0.5);
 
   nh_local_.param<string>("frame_id", p_frame_id_, string("map"));
   obstacles_.header.frame_id = p_frame_id_;
@@ -487,13 +495,8 @@ void ObstacleTracker::publishObstacles() {
   marker_arrey.markers.clear();
 
   int cnt = 0;
-  float init_rad = 0.1;
-  float min_radius = 0.2;
-  float max_radius = 0.6;
-  float x_step = 0.05;
-  float y_step = 0.05;
-  float cone = 0.92;
-  float predict_time = 1.2;
+  // float init_rad = 0.1;
+  
   vector<PointPred> cloudpoints;  // PointPred is a self defined dataformat by Owen.
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_3d(new pcl::PointCloud<pcl::PointXYZRGB>);
 
@@ -503,7 +506,7 @@ void ObstacleTracker::publishObstacles() {
     obstacles_.circles.push_back(ob);
 
     // Here comes ROAHMLab data format for pedestrian prediction
-    if ((pow(ob.velocity.y, 2.0) + pow(ob.velocity.x, 2.0)) > pow(speed_threshold_, 2.0)){
+    if ((pow(ob.velocity.y, 2.0) + pow(ob.velocity.x, 2.0)) > pow(p_speed_threshold_, 2.0)){
       state.y = ob.center.y;
       state.x = ob.center.x;
       state.theta = atan2(ob.velocity.y, ob.velocity.x);

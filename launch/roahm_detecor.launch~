@@ -76,7 +76,20 @@
     <param name="process_variance"        value="0.1"/>  
     <param name="process_rate_variance"   value="0.1"/>  
     <param name="measurement_variance"    value="1.0"/>  
-    <param name="speed_threshold"    value="0.08"/>  
+    <param name="speed_threshold"    value="0.08"/>
+<param name="min_radius"    value="0.4"/>
+<param name="max_radius"    value="0.6"/>
+<param name="x_step"    value="0.05"/>
+<param name="y_step"    value="0.05"/>
+<param name="cone"    value="0.92"/>
+<param name="predict_time"    value="0.5"/>
+
+  nh_local_.param<float>("min_radius", min_radius, 0.4);
+  nh_local_.param<float>("max_radius", max_radius, 0.6);
+  nh_local_.param<float>("x_step ", x_step , 0.05);
+  nh_local_.param<float>("y_step", y_step, 0.05);
+  nh_local_.param<float>("cone", cone, 0.92);
+  nh_local_.param<float>("predict_time", predict_time, 0.5);
 
     <param name="frame_id"                value="map"/>
 

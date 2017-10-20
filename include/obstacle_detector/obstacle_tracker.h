@@ -122,7 +122,16 @@ private:
   double p_process_variance_;
   double p_process_rate_variance_;
   double p_measurement_variance_;
-  double speed_threshold_;
+
+  // Added by ROAHM lab, Fan BU
+  double p_speed_threshold_;
+  float min_radius;
+  float max_radius;
+  float x_step;
+  float y_step;
+  float cone;
+  float predict_time;
+
 
   std::string p_frame_id_;
 };

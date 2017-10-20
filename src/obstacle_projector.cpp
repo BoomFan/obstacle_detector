@@ -84,7 +84,8 @@ bool ObstacleProjector::updateParams(std_srvs::Empty::Request &req, std_srvs::Em
 
       // build subscriber
       obs_pcd_sub_ = nh_.subscribe("/forecast/output", 1, &ObstacleProjector::obsPcdCallback, this);
-      image_sub_ = nh_.subscribe("/camera/left/image_rect_color", 1, &ObstacleProjector::imageCallback, this);
+      // image_sub_ = nh_.subscribe("/camera/left/image_rect_color", 1, &ObstacleProjector::imageCallback, this);
+      image_sub_ = nh_.subscribe("/pose_estimate/image_left", 1, &ObstacleProjector::imageCallback, this);
       // TODO: Add a camera info call back
       // TODO: Add a camera info call back
       // TODO: Add a camera info call back
